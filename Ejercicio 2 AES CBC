@@ -1,0 +1,30 @@
+import json
+from base64 import b64decode
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+
+# Cifrado B64
+
+
+txt_cifrado_base64= "TQ9SOMKc6aFS9SlxhfK9wT18UXpPCd505Xf5J/5nLI7Of/o0QKIWXg3nu1RRz4QWElezdrLAD5LO4US t3aB/i50nvvJbBiG+le1ZhpR84oI= "
+key_hex = "A2CFF885901A5449E9C448BA5B948A8C4EE377152B3F1ACFA0148FB3A426DB72"
+iv =  "00" * 16 # IV de ceros binarios
+
+# Decodificacion de texto base64
+
+
+encrypted_bytes = b64decode(txt_cifrado_base64.strip())
+key = bytes.fromhex(key_hex)
+iv = bytes.fromhex(iv)
+
+# Descifrado
+cipher = AES.new(key, AES.MODE_CBC, iv)
+decrypted = unpad(cipher.decrypt(encrypted_bytes), AES.block_size, style="pkcs7")
+
+
+print("Texto descifrado en claro:", decrypted.decode('utf-8'))
+
+#Descifrado con x923
+
+cipher = AES.new(key, AES.MODE_CBC, iv)
+decrypted = unpad(cipher.decrypt(encrypted_bytes), AES.block_size, style="x923")  
