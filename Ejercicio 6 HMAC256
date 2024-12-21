@@ -1,0 +1,14 @@
+import hmac
+import hashlib
+
+texto_objetivo = "Siempre existe más de una forma de hacerlo, y más de una solución válida."
+clave_hex = "A212A51C997E14B4DF08D55967641B0677CA31E049E672A4B06861AA4D5826EB"
+
+
+clave_bytes = bytes.fromhex(clave_hex)
+
+# Calcular el HMAC-SHA256
+hmac_sha256 = hmac.new(clave_bytes, texto_objetivo.encode(), hashlib.sha256).hexdigest()
+hmac_sha256
+
+prin=("HMAC-SHA256:", hmac_sha256)
