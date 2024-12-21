@@ -1,0 +1,61 @@
+from Crypto.Cipher import ChaCha20_Poly1305
+from base64 import b64decode, b64encode
+from Crypto.Random import get_random_bytes
+import json
+import jks
+import os
+
+
+#path
+
+path = os.path.dirname("C:\Users\Alejandro\OneDrive\Documentos\KeyStorePracticas")
+keystore = path + "/KeyStorePracticas"
+ks = jks.KeyStore.load(keystore, "123456")
+for alias, sk in ks.secret_keys.items():
+    if sk.alias == "cifrado_sim_cacha20_256":
+        key = sk.key
+
+print("La clave es:", key.hex())
+
+#chacha20
+
+textoPlano = bytes('KeepCoding te enseña a codificar y a cifrar', 'UTF-8')
+clave = bytes.fromhex(AF9DF30474898787A45605CCB9B936D33B780D03CABC81719D52383480DC3120)
+nonce_mensaje = b64decode("9Yccn/f5nJJhAt2S") #Importante NUNCA debe fijarse el nonce, en este caso lo hacemos para mostrar el mismo resultado en cualquier lenguaje.
+
+cipher = ChaCha20.new(key=clave, nonce=nonce_mensaje)
+texto_cifrado = cipher.encrypt(textoPlano)
+print('Mensaje cifrado en HEX = ', texto_cifrado.hex() )
+print('Mensaje cifrado en B64 = ', b64encode(texto_cifrado).decode())
+
+#¿Cómo podríamos mejorar de forma sencilla el sistema, de tal forma, que no sólo garanticemos la confidencialidad sino, además, la integridad del mismo? Se requiere obtener el dato cifrado, demuestra, tu propuesta por código, así como añadir los datos necesarios para evaluar tu propuesta de mejora.
+#Chacha20 poly1035
+
+
+try:
+
+    textoPlano_bytes = bytes('KeepCoding te enseña a codificar y a cifrar', 'UTF-8')
+    clave = bytes.fromhex('AF9DF30474898787A45605CCB9B936D33B780D03CABC81719D52383480DC3120') #Clave cifrado-sim-chacha20-256
+    nonce = b64decode('9Yccn/f5nJJhAt2S')
+    datos_asociados = bytes('EJEMPLO', 'utf-8')
+
+    cipher = ChaCha20_Poly1305.new(key=clave, nonce=nonce_mensaje)
+    cipher.update(datos_asociados)
+    texto_cifrado, tag = cipher.encrypt_and_digest(textoPlano_bytes)
+
+    mensaje_enviado = { "nonce": b64encode(nonce_mensaje).decode(),"datos asociados": b64encode(datos_asociados).decode(), "texto cifrado": b64encode(texto_cifrado).decode(), "tag": b64encode(tag).decode()}
+    json_mensaje = json.dumps(mensaje_enviado)
+    print("Mensaje: ", json_mensaje)
+
+    #Desciframos
+
+     decipher = ChaCha20_Poly1305.new(key=clave, nonce=nonce_mensaje)
+    datos_asociados_fake = bytes("pringado","utf-8")
+    decipher.update(datos_asociados)
+    #decipher.update(datos_asociados_fake)
+    plaintext = decipher.decrypt_and_verify(texto_cifrado,tag)
+    #plaintext = decipher.decrypt_and_verify(texto_cifrado_fake,tag)
+    print('Datos cifrados en claro = ',plaintext.decode('utf-8'))
+except (ValueError, KeyError) as error: 
+     print("Problemas al descifrar....")
+     print("El motivo del error es: ", error)
