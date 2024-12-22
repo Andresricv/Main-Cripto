@@ -1,0 +1,27 @@
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives.hashes import SHA512
+from cryptography.hazmat.backends import default_backend
+import binascii
+
+
+
+
+
+
+
+key = bytes.fromhex("A2CFF885901A5449E9C448BA5B948A8C4EE377152B3F1ACFA0148FB3A426DB72")#keystore
+id = bytes.fromhex("e43bb4067cbcfab3bec54437b84bef4623e345682d89de9948fbb0afedc461a3")
+salt = None 
+
+hkdf = HKDF(
+    algorithm=SHA512(),
+    length=32,
+    salt=salt,
+    info=id,
+    backend=default_backend()
+)
+
+clave_derivada = hkdf.derive(key)
+clave_derivada_hex = binascii.hexlify(clave_derivada).decode()
+
+print("Clave derivada:", clave_derivada_hex)
